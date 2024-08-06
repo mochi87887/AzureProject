@@ -1,9 +1,9 @@
 ﻿using Azure;
 using Azure.AI.OpenAI.Assistants;
 using Azure.Core;
-//using Azure.Core.Credential;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,25 +11,33 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        // 從環境變數中獲取 Azure OpenAI 服務的端點和 API 金鑰
-        string endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT") ?? throw new ArgumentNullException("AZURE_OPENAI_ENDPOINT");
-        string key = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY") ?? throw new ArgumentNullException("AZURE_OPENAI_API_KEY");
+        // 建立助理
+        Assistant assistant = await AssistantSetup.CreateAssistantAsync();
+        if (assistant == null)
+        {
+            return;
+        }
+
+        // 從 app.config 中讀取端點和金鑰
+        string? endpoint = ConfigurationManager.AppSettings["AZURE_OPENAI_ENDPOINT"];
+        string? key = ConfigurationManager.AppSettings["AZURE_OPENAI_API_KEY"];
 
         // 使用端點和金鑰建立 AssistantsClient
         AssistantsClient client = new AssistantsClient(new Uri(endpoint), new AzureKeyCredential(key));
-
-        // 建立助理
-        Assistant assistant = await AssistantSetup.CreateAssistantAsync(client);
 
         // 建立一個新的執行緒
         Response<AssistantThread> threadResponse = await client.CreateThreadAsync();
         AssistantThread thread = threadResponse.Value;
 
+        // 讓使用者輸入問題
+        Console.WriteLine("請輸入您的問題：");
+        string? userInput = Console.ReadLine();
+
         // 將使用者的問題添加到執行緒中
         Response<ThreadMessage> messageResponse = await client.CreateMessageAsync(
             thread.Id,
             MessageRole.User,
-            "hi"
+            userInput
         );
         ThreadMessage message = messageResponse.Value;
 
@@ -70,11 +78,14 @@ class Program
                     Console.WriteLine();
                 }
             }
+
+            Console.ReadKey();
         }
         else
         {
             // 如果執行狀態不是 Completed，輸出錯誤信息
             Console.WriteLine($"執行狀態為 {runResponse.Value.Status}，無法獲取消息。");
+            Console.ReadKey();
         }
     }
 }
