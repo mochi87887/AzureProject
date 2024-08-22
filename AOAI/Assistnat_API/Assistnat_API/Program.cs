@@ -8,9 +8,11 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        // 創建 AssistantService 和 ThreadService 的實例
+        // 創建 AssistantService、ThreadService、MessageService 和 RunService 的實例
         var assistantService = new AssistantService();
         var threadService = new ThreadService();
+        var messageService = new MessageService();
+        var runService = new RunService();
 
         try
         {
@@ -21,9 +23,22 @@ class Program
             var assistantsResponse = JsonConvert.DeserializeObject<AssistantsResponse>(assistantResponseJson);
 
             // 遍歷助理列表並輸出助理名稱和模型
-            assistantsResponse.Data.ForEach(assistant =>
-                Console.WriteLine($"助理名稱: {assistant.Name}, 模型: {assistant.Model}")
-            );
+            for (int i = 0; i < assistantsResponse.Data.Count; i++)
+            {
+                var assistant = assistantsResponse.Data[i];
+                Console.WriteLine($"{i + 1}. 助理名稱: {assistant.Name}, 模型: {assistant.Model}");
+            }
+
+            // 讓使用者選擇一個助理的編號
+            Console.WriteLine("請輸入要使用的助理編號:");
+            int assistantIndex;
+            while (!int.TryParse(Console.ReadLine(), out assistantIndex) || assistantIndex < 1 || assistantIndex > assistantsResponse.Data.Count)
+            {
+                Console.WriteLine("無效的編號，請重新輸入:");
+            }
+
+            // 根據使用者選擇的編號獲取助理的 ID
+            string assistantId = assistantsResponse.Data[assistantIndex - 1].Id;
 
             // 初始化執行緒 ID
             string threadId = string.Empty;
@@ -51,6 +66,31 @@ class Program
 
                 // 輸出擷取的執行緒 ID 和創建時間
                 Console.WriteLine($"擷取的執行緒 ID: {getThreadResponse.Id}, 創建時間: {getThreadResponse.CreatedAt}");
+
+                // 從控制台讀取訊息內容
+                Console.WriteLine("請輸入訊息內容:");
+                string messageContent = Console.ReadLine();
+
+                // 發送訊息
+                var sendMessageResponseJson = await messageService.CreateMessageAsync(threadId, "user", messageContent);
+
+                // 將 JSON 字符串反序列化為 Message_Model 對象
+                var sendMessageResponse = JsonConvert.DeserializeObject<Message_Model>(sendMessageResponseJson);
+
+                // 輸出訊息 ID 和內容
+                Console.WriteLine($"訊息 ID: {sendMessageResponse.Id}, 內容: {sendMessageResponse.Content[0].Text.Value}");
+
+                // 輸出選擇的助理 ID
+                Console.WriteLine($"選擇的助理 ID: {assistantId}");
+
+                // 調用 CreateRunAsync 方法來建立執行
+                var runResponseJson = await runService.CreateRunAsync(threadId, assistantId);
+
+                // 將 JSON 字符串反序列化為 Run_Model 對象
+                var runResponse = JsonConvert.DeserializeObject<Run_Model>(runResponseJson);
+
+                // 輸出執行結果
+                Console.WriteLine($"執行 ID: {runResponse.Id}, 狀態: {runResponse.Status}");
             }
         }
         catch (Exception ex)

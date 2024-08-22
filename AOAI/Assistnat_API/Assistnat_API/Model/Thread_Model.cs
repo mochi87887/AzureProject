@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Assistant_API.Model
+﻿namespace Assistant_API.Model
 {
     // 建立執行緒的回應模型
     public class Thread_Model
