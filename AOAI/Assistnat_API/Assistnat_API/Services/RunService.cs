@@ -16,8 +16,8 @@ namespace Assistant_API.Services
 
         public async Task<string> CreateRunAsync(string threadId, string assistantId)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, $"https://codegpt-aoai.openai.azure.com/openai/threads/{threadId}/runs?api-version=2024-05-01-preview");
-            request.Headers.Add("api-key", "fb636f9e7e0f448c8a8cc20d54bcc8f6");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_apiEndpoint}/openai/threads/{threadId}/runs?api-version=2024-05-01-preview");
+            request.Headers.Add("api-key", "_apiKey");
 
             // 構建 JSON 請求內容
             var runContent = new
