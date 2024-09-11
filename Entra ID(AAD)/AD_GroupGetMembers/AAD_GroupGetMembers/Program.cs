@@ -101,12 +101,12 @@ class Program
                 // 如果成員是使用者，顯示使用者的顯示名稱
                 if (member is User user)
                 {
-                    Console.WriteLine(user.DisplayName);
+                    Console.WriteLine($"名稱: {user.DisplayName}, 電子郵件: {user.Mail}");
                 }
                 // 如果成員是子群組，顯示子群組名稱並遞迴顯示其成員
                 else if (member is Group subGroup && subGroup.Id != null)
                 {
-                    Console.WriteLine($"群組 '{subGroup.DisplayName}' 的成員有：");
+                    Console.WriteLine($"子群組 '{subGroup.DisplayName}' 的成員有：");
                     await DisplayGroupMembersAsync(subGroup.Id);
                 }
             }
