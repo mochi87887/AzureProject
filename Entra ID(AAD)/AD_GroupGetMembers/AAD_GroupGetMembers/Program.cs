@@ -14,7 +14,7 @@ class Program
     static async Task Main(string[] args)
     {
         // 從 app.config 中讀取群組名稱，如果未配置則拋出異常
-        string groupName = ConfigurationManager.AppSettings["GroupName"] ?? throw new InvalidOperationException("GroupName is not configured.");
+        string groupId = ConfigurationManager.AppSettings["GroupId"] ?? throw new InvalidOperationException("GroupId is not configured.");
 
         try
         {
@@ -22,18 +22,18 @@ class Program
             InitializeGraphClient();
 
             // 根據群組名稱查找群組
-            var group = await FindGroupByNameAsync(groupName);
+            var group = await FindGroupByNameAsync(groupId);
             if (group != null && group.Id != null)
             {
                 // 如果找到群組，顯示群組名稱
-                Console.WriteLine($"群組 '{groupName}' 的成員有：");
+                Console.WriteLine($"群組 '{group.DisplayName}' 的成員有：");
                 // 顯示群組成員
                 await DisplayGroupMembersAsync(group.Id);
             }
             else
             {
                 // 如果找不到群組，顯示錯誤訊息
-                Console.WriteLine($"找不到群組 '{groupName}'");
+                Console.WriteLine($"找不到群組 '{groupId}'");
             }
         }
         catch (Exception ex)
@@ -60,7 +60,7 @@ class Program
     }
 
     // 根據群組名稱查找群組的異步方法
-    private static async Task<Group?> FindGroupByNameAsync(string groupName)
+    private static async Task<Group?> FindGroupByNameAsync(string groupId)
     {
         // 如果 Graph 客戶端未初始化，則拋出異常
         if (graphClient == null)
@@ -73,7 +73,7 @@ class Program
             .GetAsync(requestConfiguration =>
             {
                 // 設置查詢參數過濾條件
-                requestConfiguration.QueryParameters.Filter = $"displayName eq '{groupName}'";
+                requestConfiguration.QueryParameters.Filter = $"id eq '{groupId}'";
             });
 
         // 返回找到的群組，如果有的話
@@ -111,5 +111,6 @@ class Program
                 }
             }
         }
+        Console.ReadKey();
     }
 }
