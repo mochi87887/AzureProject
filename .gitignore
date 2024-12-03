@@ -112,9 +112,6 @@ ipch/
 *.VC.db
 *.VC.VC.opendb
 
-# LogFile
-*.txt
-
 # Visual Studio profiler
 *.psess
 *.vsp
@@ -216,8 +213,7 @@ csx/
 # Microsoft Azure Emulator
 ecf/
 rcf/
-ServiceDependencies/
-*ServiceDependencies*.json
+
 # Windows Store app package directories and files
 AppPackages/
 BundleArtifacts/
@@ -365,7 +361,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/CMPAPI/Properties/ServiceDependencies/CMPAPI20211025171343 - Web Deploy/profile.arm.json
-CmpPlatformApi/Properties/ServiceDependencies/CmpTestPlatformWebApi - Web Deploy1/profile.arm.json
-CmpPlatformApi/Properties/ServiceDependencies/iCmpPlatformWebApi - Web Deploy/profile.arm.json
-/CmpPlatformApi/appsettings.json
